@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './player.css';
 
 export const Players = () => {
-  const bikeCount = 3; // Number of bikes
+  const bikeCount = 4; // Number of bikes
   const raceDistance = 500; // Race distance in km
   const raceDuration = 20; // Race duration in seconds (2 minutes)
 
@@ -12,6 +12,7 @@ export const Players = () => {
   const [showSpeeds, setShowSpeeds] = useState(false);
   const [winner, setWinner] = useState(null);
   const [showFollowUp, setShowFollowUp] = useState(false);
+  const [winnerPopUpShown, setWinnerPopUpShown] = useState(false);
 
   useEffect(() => {
     // Generate initial bike data
@@ -21,17 +22,6 @@ export const Players = () => {
     // Clean up interval on unmount
     return () => clearInterval(intervalId);
   }, []); // No need to start the interval here
-
-  useEffect(() => {
-    if (raceInProgress) {
-      // Start the interval to update bike speeds
-      const id = setInterval(updateBikeSpeeds, 1000); // Update speeds every 1 second
-      setIntervalId(id);
-    } else {
-      // Clear the interval when race is not in progress
-      clearInterval(intervalId);
-    }
-  }, [raceInProgress]); // Run this effect whenever raceInProgress changes
 
   const generateInitialBikes = () => {
     const newBikes = [];
@@ -47,15 +37,18 @@ export const Players = () => {
     }
     return newBikes;
   };
-
   const startRace = () => {
     if (!raceInProgress) {
-      // Start the race
-      setWinner(null); // Reset winner
-      setShowFollowUp(false); // Hide follow-up popup
+      setWinner(null);
+      setShowFollowUp(false);
+      setRaceInProgress(true);
+      setWinnerPopUpShown(false); // Reset winner pop-up status
+      const id = setInterval(updateBikeSpeeds, 1000); // Update speeds every 1 second
+      setIntervalId(id);
       setRaceInProgress(true);
     }
   };
+
 
   const updateBikeSpeeds = () => {
     setBikes((prevBikes) =>
@@ -64,11 +57,13 @@ export const Players = () => {
           console.log(`Bike ${bike.id} has won!`);
           console.log(`Simulating email to Bike ${bike.id} winner.`);
           setWinner(bike.id);
-          setShowFollowUp(true);
-          setRaceInProgress(false); // Stop the race
-
-          // Clear the interval for updating bike speeds
+          setRaceInProgress(false);
           clearInterval(intervalId);
+
+          if (!winnerPopUpShown) {
+            setShowFollowUp(true);
+            setWinnerPopUpShown(true);
+          }
         }
         return {
           ...bike,
@@ -80,6 +75,7 @@ export const Players = () => {
     );
   };
 
+
   const toggleSpeeds = () => {
     setShowSpeeds(!showSpeeds);
   };
@@ -87,10 +83,11 @@ export const Players = () => {
   const resetRace = () => {
     setWinner(null);
     setShowFollowUp(false);
+    setWinnerPopUpShown(false); // Reset winner pop-up status
     setBikes(generateInitialBikes());
     setRaceInProgress(false);
   };
-
+  const sortedBikes = [...bikes].sort((a, b) => b.distance - a.distance);
   return (
     <div className="race-container">
       <div className="race-track">
@@ -134,6 +131,18 @@ export const Players = () => {
       <button className="speed-button" onClick={toggleSpeeds}>
         {showSpeeds ? 'Hide Speeds' : 'Show Speeds'}
       </button>
-    </div>
-  );
+      {showFollowUp && (
+      <div className="rank-list">
+        <h2>Ranking List</h2>
+        <ol>
+          {sortedBikes.map((bike, index) => (
+            <li key={bike.id}>
+              {index + 1}. {bike.name} - {bike.distance.toFixed(2)} km
+            </li>
+          ))}
+        </ol>
+      </div>
+    )}
+  </div>
+);
 };
