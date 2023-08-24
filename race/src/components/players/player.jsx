@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './player.css';
+import emailjs from 'emailjs-com';
 
 export const Players = () => {
   const bikeCount = 4; // Number of bikes
@@ -22,6 +23,7 @@ export const Players = () => {
     // Clean up interval on unmount
     return () => clearInterval(intervalId);
   }, []); // No need to start the interval here
+
 
   const generateInitialBikes = () => {
     const newBikes = [];
@@ -56,10 +58,14 @@ export const Players = () => {
         if (bike.distance >= raceDistance && !raceInProgress && winner !== bike.id) {
           console.log(`Bike ${bike.id} has won!`);
           console.log(`Simulating email to Bike ${bike.id} winner.`);
+          
+          // Send email to the winner
+          sendEmail(bike.email);
+          
           setWinner(bike.id);
           setRaceInProgress(false);
           clearInterval(intervalId);
-
+  
           if (!winnerPopUpShown) {
             setShowFollowUp(true);
             setWinnerPopUpShown(true);
@@ -75,6 +81,23 @@ export const Players = () => {
     );
   };
 
+ 
+  const sendEmail = (toEmail) => {
+    emailjs.send(
+      'service_nk4vm0d', // Your email service ID from emailjs dashboard
+      'template_63eg5is', // Your template ID from emailjs dashboard
+      {
+        to_email: toEmail,
+      },
+      'V32r9vN3iCxD_q1ka' // Your user ID from emailjs dashboard
+    )
+    .then((response) => {
+      console.log('Email sent successfully', response);
+    })
+    .catch((error) => {
+      console.error('Error sending email', error);
+    });
+  };
 
   const toggleSpeeds = () => {
     setShowSpeeds(!showSpeeds);
