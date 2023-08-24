@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import './player.css';
 
 export const Players = () => {
-  const bikeCount = 4; // Number of bikes
-  const raceDistance = 1000; // Race distance in km
-  const raceDuration = 60; // Race duration in seconds (2 minutes)
+  const bikeCount = 3; // Number of bikes
+  const raceDistance = 500; // Race distance in km
+  const raceDuration = 20; // Race duration in seconds (2 minutes)
 
   const [bikes, setBikes] = useState([]);
   const [intervalId, setIntervalId] = useState(null); // New state for interval ID
@@ -22,6 +22,17 @@ export const Players = () => {
     return () => clearInterval(intervalId);
   }, []); // No need to start the interval here
 
+  useEffect(() => {
+    if (raceInProgress) {
+      // Start the interval to update bike speeds
+      const id = setInterval(updateBikeSpeeds, 1000); // Update speeds every 1 second
+      setIntervalId(id);
+    } else {
+      // Clear the interval when race is not in progress
+      clearInterval(intervalId);
+    }
+  }, [raceInProgress]); // Run this effect whenever raceInProgress changes
+
   const generateInitialBikes = () => {
     const newBikes = [];
     for (let i = 0; i < bikeCount; i++) {
@@ -30,6 +41,8 @@ export const Players = () => {
         name: `Bike ${i + 1}`,
         speed: 0,
         distance: 0,
+        email: `email${i + 1}@example.com`, // Replace with actual email
+        svg: `bike-svg-${i + 1}`, // Replace with actual SVG element ID or class
       });
     }
     return newBikes;
@@ -38,8 +51,8 @@ export const Players = () => {
   const startRace = () => {
     if (!raceInProgress) {
       // Start the race
-      const id = setInterval(updateBikeSpeeds, 1000); // Update speeds every 1 second
-      setIntervalId(id);
+      setWinner(null); // Reset winner
+      setShowFollowUp(false); // Hide follow-up popup
       setRaceInProgress(true);
     }
   };
@@ -47,12 +60,15 @@ export const Players = () => {
   const updateBikeSpeeds = () => {
     setBikes((prevBikes) =>
       prevBikes.map((bike) => {
-        if (bike.distance >= raceDistance && !raceInProgress) {
+        if (bike.distance >= raceDistance && !raceInProgress && winner !== bike.id) {
           console.log(`Bike ${bike.id} has won!`);
           console.log(`Simulating email to Bike ${bike.id} winner.`);
           setWinner(bike.id);
           setShowFollowUp(true);
-          setRaceInProgress(true);
+          setRaceInProgress(false); // Stop the race
+
+          // Clear the interval for updating bike speeds
+          clearInterval(intervalId);
         }
         return {
           ...bike,
@@ -99,7 +115,11 @@ export const Players = () => {
         <h2>Bike Speeds</h2>
         <ul>
           {bikes.map((bike) => (
-            <li key={bike.id}>Bike {bike.id}: {bike.speed.toFixed(2)} km/h</li>
+            <li key={bike.id}>
+              {bike.name}: {bike.speed.toFixed(2)} km/h
+              <br />
+              Email: {bike.email}
+            </li>
           ))}
         </ul>
       </div>
