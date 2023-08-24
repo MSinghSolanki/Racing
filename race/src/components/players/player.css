@@ -1,37 +1,91 @@
-.players {
-    text-align: center;
-    margin: 30px auto;
+/* player.css */
+
+/* Container for the race and buttons */
+.race-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+/* Race track */
+.race-track {
+  margin-top: 20px;
+  position: relative;
+}
+
+/* Bike rectangles */
+.race-track rect {
+  transition: width 0.5s ease-in-out;
+}
+
+/* Speed popup */
+.speed-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  max-width: 300px;
+  display: none;
+}
+
+.speed-popup.visible {
+  display: block;
+  animation: fade-in 0.3s ease-in-out;
+}
+
+.speed-popup h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.speed-popup ul {
+  list-style: none;
+  padding: 0;
+}
+
+.speed-popup li {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+/* Buttons */
+.race-button,
+.speed-button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  background-color: #3498db;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.race-button:disabled,
+.speed-button:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.race-button:hover,
+.speed-button:hover {
+  background-color: #2980b9;
+}
+
+/* Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
   }
-  
-  .race-track {
-    position: relative;
-    width: 30%; /* e width oftrack */
-    height: 100px; /* e height of track */
-    border: 1px solid #000;
-    overflow: hidden;
-    margin: 0 auto;
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
   }
-  
-  .animal {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    padding: 10px;  
-    font-size: 30px;   /*size of player*/
-    transition: left 111s linear;   
-    /* Speed of players */
-  }
-  
-  .animal.winner {
-    background-color: yellow;
-  }
-  
-  button {
-    margin-top: 20px;
-  }
-  
-  .winner-text {
-    font-weight: bold;
-    margin-top: 10px;
-  }
-  
+}
